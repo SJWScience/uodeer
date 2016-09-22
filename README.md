@@ -27,3 +27,9 @@ java -jar trimmomatic-0.35.jar PE -threads 12 -phred33 \
 
 >This is quite lenient trimming, but i have done so to ensure we keep as much RNA as possible
 
+>**Post trim QC**
+
+>Just run fastQC on the trimmed paired forward and reverse files, to confirm the removal of adapter sequence and low qual reads.
+
+
+
