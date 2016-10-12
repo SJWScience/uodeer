@@ -17,7 +17,7 @@ java -jar fastqc.jar ~/path/to/raw/seqs/*.fq.gz
 >**Trimming the raw reads using Trimmomatic**
 
 ```bash
-java -jar trimmomatic-0.35.jar PE -threads 12 -phred33 \
+java -jar trimmomatic-0.35.jar PE -threads 20 -phred33 \
  sample_read1.fastq.gz sample_read2.fastq.gz \
  output1_forward_paired.fq.gz output1_forward_unpaired.fq.gz \
  output1_reverse_paired.fq.gz output1_reverse_unpaired.fq.gz \
@@ -25,7 +25,7 @@ java -jar trimmomatic-0.35.jar PE -threads 12 -phred33 \
 
 ```
 
->This is quite lenient trimming, but i have done so to ensure we keep as much RNA as possible
+>This is quite lenient trimming, but i have done so to ensure we keep as much RNA as possible. * Note copying and pasting this code wont make it work, you will need to link directly to the correct place for the trimmomatic.jar and also link to the adapters. For bioc this is /usr/local/bin/Trimmomatic-0.35/trimmomatic.jar and /usr/local/bin/Trimmomatic-0/35/adapterss/TruSeq3-PE.fa respectivley.
 
 >**Post trim QC**
 
