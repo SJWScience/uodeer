@@ -27,13 +27,13 @@ java -jar trimmomatic-0.35.jar PE -threads 20 -phred33 \
 
 >This is quite lenient trimming, but i have done so to ensure we keep as much RNA as possible. * Note copying and pasting this code wont make it work, you will need to link directly to the correct place for the trimmomatic.jar and also link to the adapters. For bioc this is /usr/local/bin/Trimmomatic-0.35/trimmomatic.jar and /usr/local/bin/Trimmomatic-0/35/adapterss/TruSeq3-PE.fa respectivley.
 
->**Post trim QC**
+> **Post trim QC**
 
 >Just run fastQC on the trimmed paired forward and reverse files, to confirm the removal of adapter sequence and low qual reads.
 
 Once sample pre-processing is complete, trinity assemblies can be carried out.
 
->**Trinity assemblies**
+> **Trinity assemblies**
 
 ```bash
 trinity --CPU 20 --seqType fq --max_memory 50G --left output1_forward_paired.fq.gz \
@@ -47,7 +47,7 @@ From the Trinity assemblies you get a .fasta file that contains A LOT of differe
 
 In my experiences the Trinity quant pipeline is not the greatest. Essentially the way it parses your mapped file is the wrong way for most programs that generate counts (they sort the BAM file relative to the reference.fasta, whereas these programs need a name sorted bam file). So using Trinity for the first step of the mapping is alright to do, but the actual read counting will probably fall over.
 
->** Trinity mapping/counting**
+> **Trinity mapping/counting**
 
 >Essentially this will map the reads to the .fasta file generated from Trinity. More importantly it will also map the reads to everywhere they match (allows unlimited non-unique mapping). This is important as it allows the count software to pick which transcripts are most likely, without being biased by half your reads mapping to a truncated transcript.
 
