@@ -31,5 +31,19 @@ java -jar trimmomatic-0.35.jar PE -threads 20 -phred33 \
 
 >Just run fastQC on the trimmed paired forward and reverse files, to confirm the removal of adapter sequence and low qual reads.
 
+Once sample pre-processing is complete, trinity assemblies can be carried out.
+
+>**Trinity assemblies**
+
+```bash
+trinity --CPU 20 --seqType fq --max_memory 50G --left output1_forward_paired.fq.gz \
+--right output1_reverse_paired.fq.gz --output trinity_output1
+
+```
+
+>Trinity was run on all samples individually and then on all the samples at once. To add more than one sample to the assembly just put the reads seperated by a comma (no space) eg; --left output1_forward_paried.fq.gz,output2_forward_paried.fq.gz . . .
+
+
+
 
 
