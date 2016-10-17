@@ -49,26 +49,60 @@ In my experiences the Trinity quant pipeline is not the greatest. Essentially th
 
 > **Trinity mapping/counting**
 
->Essentially this will map the reads to the .fasta file generated from Trinity. More importantly it will also map the reads to everywhere they match (allows unlimited non-unique mapping). This is important as it allows the count software to pick which transcripts are most likely, without being biased by half your reads mapping to a truncated transcript.
+>Essentially this will map the reads to the .fasta file generated from Trinity. More importantly it will also map the reads to everywhere they match (allows unlimited non-unique mapping). This is important as it allows the count software to pick which transcripts are most likely, without being biased by half your reads mapping to a truncated transcript. This is what a lot of people used to qunatify their transcripts.
 
 ```bash
 /Trinity/util/align_and_estimate_abundance.pl --transcripts Trinity.fasta --seqType fq \
---left output1_forward_paired.fq.gz --right output1_reverse_paired.fq.gz --est_method eXpress \
+--left output1_forward_paired.fq.gz --right output1_reverse_paired.fq.gz --est_method salmon \
 --aln_method bowtie2 --trinity_mode --prep_reference --output_dir eXpress_output
 
 ```
 
->This will probably error out during the read counting of eXpress with some error about alignments not being properly sorted. My solution to this - Run eXpress by itself, after sorting the bowtie2.bam file that gets output from the above code.
+>This might error out during the read counting of salmon. My solution to this - Just use salmon by itself
 
 ```bash
-
-samtools sort -n reads.bam > reads.sorted.bam
-
-express Trinity.fasta reads.sorted.bam -o eXpress_output1
+salmon -quant -i indexed_Trinity.fasta -l IU -1 output1_forward_paired.fq.gz \
+-2 output1_reverse_paired.fq.gz -o salmon_quant_output1 -p 20
 
 ```
 
->This SHOULD work, if trinity fell over. Like i mentioned above, i think that trinity script either doesnt sort the .bam file or sorts it via position not by name (samtools sort -n) like eXpress required.
+>This SHOULD work, if trinity fell over.
+
+>From here the most abundantly expressed transcripts (in prelim analysis it was top 1000) were listed from the "quant.sf" file from salmon. However, the sequences need to be extracted from the original Trinity.fasta assembly so they can be translated. This is a really handy way of doing it - Make all of the transcripts you want into a list in a text file (make sure it has unix coding not microsoft, otherwise this wont work, less say this is call top1000list.txt).
+
+```bash
+cat top1000list.txt | xargs samtools faidx Trinity.fasta | cat > top1000transcripts.fasta
+
+```
+
+>This will use the fasta header identifier to rapidly pull them out and put them all into a file of their own (very handy)
+
+>The next step is to take these and turn them into logical putative proteins. I did this initially in 2 different ways. 1) simply translating anything that had an AUG and an inframe stop codon that was over 50 residues away (brute force method). and 2) A measured approach using hmm and blast matches.
+
+> **Identifying putative transcripts using TRANSdecoder
+
+```bash
+transDecoder.LongOrfs -t top1000transcripts.fasta -m 50
+
+```
+
+>This will output quite a lot of transcripts, although we want some that have certainty, to do this i incorperated BLASTp searches and hmm comparisons to determine proteins that are more likely. In this case all BLASTp was done in comparison to Bos_taurus only and hmm was compared to all of Pfam.
+
+```bash
+blastp -query top1000transcripts/longest_orfs.pep  -db bos_taurus  -max_target_seqs 1 \
+-outfmt 6 -evalue 1e-5 -num_threads 20 > blastp.outfmt6
+
+hmmscan --cpu 20 --domtblout pfam.domtblout Pfam-A.hmm top1000transcripts/longest_orfs.pep
+
+TransDecoder.Predict -t Trinity.fasta --retain_pfam_hits pfam.domtblout --retain_blastp_hits blastp.outfmt6
+
+```
+
+>The output of longest_orfs.pep can just be changed into fasta if you remove spaces from the fasta > headers (some programs really dont like spaces).
+
+
+
+
 
 
 
