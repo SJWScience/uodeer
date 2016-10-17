@@ -79,7 +79,7 @@ cat top1000list.txt | xargs samtools faidx Trinity.fasta | cat > top1000transcri
 
 >The next step is to take these and turn them into logical putative proteins. I did this initially in 2 different ways. 1) simply translating anything that had an AUG and an inframe stop codon that was over 50 residues away (brute force method). and 2) A measured approach using hmm and blast matches.
 
-> **Identifying putative transcripts using TRANSdecoder
+> **Identifying putative transcripts using TRANSdecoder**
 
 ```bash
 transDecoder.LongOrfs -t top1000transcripts.fasta -m 50
